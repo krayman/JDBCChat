@@ -3,20 +3,29 @@ package server;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.sql.*;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 public class Server {
     private List<ClientHandler> clients;
     private AuthService authService;
+    private Connection connection;
+
 
     public Server() {
         clients = new CopyOnWriteArrayList<>();
-        authService = new SimpleAuthService();
+        authService = new DBAuthService();
         ServerSocket server = null;
         Socket socket = null;
         final int PORT = 8189;
-
+        try {
+            connect();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+        }
         try {
             server = new ServerSocket(PORT);
             System.out.println("Server started");
@@ -97,5 +106,12 @@ public class Server {
         for (ClientHandler c : clients) {
             c.sendMsg(message);
         }
+    }
+
+    private void connect() throws ClassNotFoundException, SQLException {
+        Statement stmt;
+        Class.forName("org.sqlite.JDBC");
+        connection = DriverManager.getConnection("jdbc:sqlite:main.db");
+        stmt = connection.createStatement();
     }
 }

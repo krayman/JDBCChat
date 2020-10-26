@@ -5,6 +5,7 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
+import java.sql.SQLException;
 
 public class ClientHandler {
     DataInputStream in;
@@ -25,7 +26,7 @@ public class ClientHandler {
 
             new Thread(() -> {
                 try {
-                    socket.setSoTimeout(5000);
+                    //socket.setSoTimeout(5000);
                     //цикл аутентификации
                     while (true) {
                         String str = in.readUTF();
@@ -35,8 +36,15 @@ public class ClientHandler {
                             if (token.length < 4) {
                                 continue;
                             }
-                            boolean b = server.getAuthService()
-                                    .registration(token[1], token[2], token[3]);
+                            boolean b = false;
+                            try {
+                                b = server.getAuthService()
+                                        .registration(token[1], token[2], token[3]);
+                            } catch (SQLException throwables) {
+                                throwables.printStackTrace();
+                            } catch (ClassNotFoundException e) {
+                                e.printStackTrace();
+                            }
                             if (b) {
                                 sendMsg("/regok");
                             } else {
@@ -49,8 +57,18 @@ public class ClientHandler {
                             if (token.length < 3) {
                                 continue;
                             }
-                            String newNick = server.getAuthService()
-                                    .getNicknameByLoginAndPassword(token[1], token[2]);
+                            String newNick = null;
+                            try {
+                                try {
+                                    newNick = server.getAuthService()
+                                            .getNicknameByLoginAndPassword(token[1], token[2]);
+                                } catch (ClassNotFoundException e) {
+                                    e.printStackTrace();
+                                }
+                                System.out.println(newNick);
+                            } catch (SQLException throwables) {
+                                throwables.printStackTrace();
+                            }
                             if (newNick != null) {
                                 login = token[1];
                                 if (!server.isLoginAuthenticated(login)) {
@@ -74,6 +92,10 @@ public class ClientHandler {
                             if (str.equals("/end")) {
                                 sendMsg("/end");
                                 break;
+                            }
+                            if (str.startsWith("/changenick ")){
+                                String[] token = str.split("\\s", 2);
+                                server.getAuthService().changeNickname(getNickname(), token[1]);
                             }
                             if (str.startsWith("/w ")) {
                                 String[] token = str.split("\\s", 3);

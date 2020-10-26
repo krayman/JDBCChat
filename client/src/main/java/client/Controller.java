@@ -28,6 +28,12 @@ public class Controller implements Initializable {
     @FXML
     public Label spaceBot;
     @FXML
+    public TextField nickField;
+    @FXML
+    public Button visNick;
+    @FXML
+    public Button chngNick;
+    @FXML
     private ListView<String> clientList;
     @FXML
     private TextArea textArea;
@@ -67,6 +73,8 @@ public class Controller implements Initializable {
         spaceTop.setVisible(authenticated);
         spaceBot.setManaged(authenticated);
         spaceBot.setVisible(authenticated);
+        visNick.setVisible(authenticated);
+        visNick.setManaged(authenticated);
 
 
         if (!authenticated) {
@@ -267,5 +275,27 @@ public class Controller implements Initializable {
         String datePrint = formatter.format(date);
         //System.out.println(formatter.format(date));
         spaceTop.setText(datePrint);
+    }
+
+    public void changeNick(ActionEvent actionEvent) {
+        String msg = String.format("/changenick %s", nickField.getText());
+        try {
+            out.writeUTF(msg);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        nickField.setVisible(false);
+        nickField.setManaged(false);
+        chngNick.setVisible(false);
+        chngNick.setManaged(false);
+    }
+
+    public void visibleNick(ActionEvent actionEvent) {
+        nickField.setVisible(true);
+        nickField.setManaged(true);
+        chngNick.setVisible(true);
+        chngNick.setManaged(true);
+        visNick.setVisible(false);
+        visNick.setManaged(false);
     }
 }

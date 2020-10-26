@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import java.net.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-<?import java.net.URL?>
+
 <VBox alignment="center" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="client.Controller">
     <stylesheets>
         <URL value="@/CSS/style.css" />
@@ -14,11 +15,18 @@
         <Button minWidth="60" onAction="#regStageShow" text="Sign up" />
 
     </HBox>
+<HBox>
+    <TextArea fx:id="spaceTop" editable="false" maxHeight="2" visible="true" />
+    <TextField fx:id="nickField" minWidth="100" visible="false" managed="false"/>
+    <Button  fx:id="visNick" minWidth="60" onAction="#visibleNick" text="NickChng" visible="false" managed="false"/>
+    <Button fx:id="chngNick" minWidth="60" onAction="#changeNick" text="NickChng" visible="false" managed="false" />
+</HBox>
 
-    <TextArea fx:id="spaceTop" maxHeight="2" visible="true" editable="false"/>
 
     <HBox VBox.vgrow="ALWAYS">
+
         <TextArea fx:id="textArea" editable="false" HBox.hgrow="ALWAYS" />
+
         <ListView fx:id="clientList" managed="false" minWidth="60" onMouseClicked="#clickClientList" onMouseReleased="#releasedMouseClientList" visible="false" />
     </HBox>
 
@@ -26,7 +34,7 @@
 
     <HBox fx:id="msgPanel" managed="false" visible="false">
         <TextField fx:id="textField" onAction="#sendMsg" promptText="input message" HBox.hgrow="ALWAYS" />
-        <Button  onAction="#sendMsg" text="send" HBox.hgrow="ALWAYS" VBox.vgrow="ALWAYS"/>
+        <Button onAction="#sendMsg" text="send" HBox.hgrow="ALWAYS" VBox.vgrow="ALWAYS" />
     </HBox>
 
 </VBox>
