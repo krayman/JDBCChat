@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
 import java.sql.SQLException;
+import java.io.*;
 
 public class ClientHandler {
     DataInputStream in;
@@ -15,6 +16,7 @@ public class ClientHandler {
 
     private String nickname;
     private String login;
+    private File base;
 
     public ClientHandler(Server server, Socket socket) {
         try {
@@ -23,6 +25,7 @@ public class ClientHandler {
             in = new DataInputStream(socket.getInputStream());
             out = new DataOutputStream(socket.getOutputStream());
             System.out.println("Client connected " + socket.getRemoteSocketAddress());
+
 
             new Thread(() -> {
                 try {
@@ -75,6 +78,7 @@ public class ClientHandler {
                                     nickname = newNick;
                                     sendMsg("/authok " + newNick);
                                     server.subscribe(this);
+                                    baseAuth();
                                     break;
                                 } else {
                                     sendMsg("С этим логином уже вошли в чат");
@@ -93,7 +97,7 @@ public class ClientHandler {
                                 sendMsg("/end");
                                 break;
                             }
-                            if (str.startsWith("/changenick ")){
+                            if (str.startsWith("/changenick ")) {
                                 String[] token = str.split("\\s", 2);
                                 server.getAuthService().changeNickname(getNickname(), token[1]);
                             }
@@ -110,7 +114,7 @@ public class ClientHandler {
                     }
 
 
-                } catch (SocketTimeoutException e){
+                } catch (SocketTimeoutException e) {
                     sendMsg("/end");
                 } catch (IOException e) {
                     e.printStackTrace();
@@ -146,5 +150,9 @@ public class ClientHandler {
 
     public String getLogin() {
         return login;
+    }
+
+    public void baseAuth() throws IOException {
+        out.writeUTF("/loadHistory "+ getLogin());
     }
 }

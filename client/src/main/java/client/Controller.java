@@ -13,13 +13,16 @@ import javafx.scene.layout.HBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
+import java.io.*;
 import java.net.Socket;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.ResourceBundle;
 
 public class Controller implements Initializable {
@@ -61,6 +64,8 @@ public class Controller implements Initializable {
 
     private boolean authenticated;
     private String nickname;
+    private File base;
+    private String basePath;
 
     private void setAuthenticated(boolean authenticated) {
         this.authenticated = authenticated;
@@ -103,7 +108,6 @@ public class Controller implements Initializable {
         Platform.runLater(() -> {
             stage = (Stage) textField.getScene().getWindow();
             stage.setOnCloseRequest(event -> {
-                System.out.println("bye");
                 if (socket != null && !socket.isClosed()) {
                     try {
                         out.writeUTF("/end");
@@ -141,6 +145,7 @@ public class Controller implements Initializable {
 
                         if (str.startsWith("/regok")) {
                             regController.addMessageTextArea("Регистрация прошла успешно");
+
                         }
                         if (str.startsWith("/regno")) {
                             regController.addMessageTextArea("Зарегистрироватся не удалось\n" +
@@ -150,14 +155,22 @@ public class Controller implements Initializable {
                         textArea.appendText(str + "\n");
                     }
 
+
                     //цикл работы
                     while (true) {
                         String str = in.readUTF();
 
                         if (str.startsWith("/")) {
                             if (str.equals("/end")) {
+                                recordHistory();
                                 break;
                             }
+                            if (str.startsWith("/loadHistory ")) {
+                                String[] logArr = str.split("\\s");
+                                baseAuth(logArr[1]);
+                                setHistory(logArr[1]);
+                            }
+
                             if (str.startsWith("/clientlist ")) {
                                 String[] token = str.split("\\s");
                                 Platform.runLater(() -> {
@@ -297,5 +310,39 @@ public class Controller implements Initializable {
         chngNick.setManaged(true);
         visNick.setVisible(false);
         visNick.setManaged(false);
+    }
+
+    public void setHistory(String login) throws IOException {
+
+        List listOfHistory = Files.readAllLines(Paths.get(basePath));
+        if (listOfHistory.size() > 100) {
+            for (int i = listOfHistory.size() - 100; i < listOfHistory.size(); i++) {
+                textArea.appendText((String)listOfHistory.get(i));
+                textArea.appendText("\n");
+            }
+        } else {
+            for (Object message : listOfHistory) {
+                textArea.appendText((String) message);
+                textArea.appendText("\n");
+            }
+        }
+        textArea.setScrollTop(0);
+        textArea.setScrollLeft(0);
+    }
+
+    public void baseAuth(String login) throws IOException {
+        basePath = "base/History " + login + ".txt";
+        base = new File(basePath);
+        base.createNewFile();
+    }
+
+    public void recordHistory() {
+        try (FileOutputStream out = new FileOutputStream(basePath)) {
+            out.write(textArea.getText().getBytes());
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }
