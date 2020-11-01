@@ -52,7 +52,7 @@ public class Controller implements Initializable {
     private HBox msgPanel;
 
     private final String IP_ADDRESS = "localhost";
-    private final int PORT = 8189;
+    private final int PORT = 2548;
 
     private Socket socket;
     private DataInputStream in;

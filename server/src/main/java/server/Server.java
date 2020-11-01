@@ -18,7 +18,7 @@ public class Server {
         authService = new DBAuthService();
         ServerSocket server = null;
         Socket socket = null;
-        final int PORT = 8189;
+        final int PORT = 2548;
         try {
             connect();
         } catch (ClassNotFoundException e) {

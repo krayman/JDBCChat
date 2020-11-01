@@ -7,6 +7,8 @@ import java.net.Socket;
 import java.net.SocketTimeoutException;
 import java.sql.SQLException;
 import java.io.*;
+import java.util.concurrent.*;
+
 
 public class ClientHandler {
     DataInputStream in;
@@ -17,6 +19,7 @@ public class ClientHandler {
     private String nickname;
     private String login;
     private File base;
+    ExecutorService clientThread = Executors.newCachedThreadPool();
 
     public ClientHandler(Server server, Socket socket) {
         try {
@@ -26,8 +29,7 @@ public class ClientHandler {
             out = new DataOutputStream(socket.getOutputStream());
             System.out.println("Client connected " + socket.getRemoteSocketAddress());
 
-
-            new Thread(() -> {
+            clientThread.execute(() -> {
                 try {
                     //socket.setSoTimeout(5000);
                     //цикл аутентификации
@@ -129,7 +131,8 @@ public class ClientHandler {
                         e.printStackTrace();
                     }
                 }
-            }).start();
+            });
+
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -153,6 +156,6 @@ public class ClientHandler {
     }
 
     public void baseAuth() throws IOException {
-        out.writeUTF("/loadHistory "+ getLogin());
+        out.writeUTF("/loadHistory " + getLogin());
     }
 }
