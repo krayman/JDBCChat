@@ -1,5 +1,6 @@
 package server;
 
+import java.io.IOException;
 import java.sql.*;
 
 public class StartServer {
@@ -7,7 +8,7 @@ public class StartServer {
     private static Statement stmt;
     private static PreparedStatement psInsert;
 
-    public static void main(String[] args) throws SQLException, ClassNotFoundException {
+    public static void main(String[] args) throws SQLException, ClassNotFoundException, IOException {
         new Server();
         connect();
         prepareAllStatements();

@@ -27,7 +27,7 @@ public class ClientHandler {
             this.socket = socket;
             in = new DataInputStream(socket.getInputStream());
             out = new DataOutputStream(socket.getOutputStream());
-            System.out.println("Client connected " + socket.getRemoteSocketAddress());
+            server.logger.info("Client connected " + socket.getRemoteSocketAddress());
 
             clientThread.execute(() -> {
                 try {
@@ -52,12 +52,15 @@ public class ClientHandler {
                             }
                             if (b) {
                                 sendMsg("/regok");
+                                server.logger.info("Успешная регистрация");
                             } else {
                                 sendMsg("/regno");
+                                server.logger.info("Неудачная попытка регистрации");
                             }
                         }
 
                         if (str.startsWith("/auth ")) {
+                            server.logger.info("Попытка авторизации");
                             String[] token = str.split("\\s");
                             if (token.length < 3) {
                                 continue;
@@ -100,6 +103,7 @@ public class ClientHandler {
                                 break;
                             }
                             if (str.startsWith("/changenick ")) {
+                                server.logger.info("Попытка смены ника");
                                 String[] token = str.split("\\s", 2);
                                 server.getAuthService().changeNickname(getNickname(), token[1]);
                             }
@@ -122,7 +126,7 @@ public class ClientHandler {
                     e.printStackTrace();
                 } finally {
                     server.unsubscribe(this);
-                    System.out.println("Client disconnected " + socket.getRemoteSocketAddress());
+                    server.logger.info("Client disconnected " + socket.getRemoteSocketAddress());
                     try {
                         socket.close();
                         in.close();
